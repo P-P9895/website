@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💖 Heart Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0810;
+    --surface: #160f1c;
+    --accent: #ff3a6e;
+    --accent2: #ff8fa3;
+    --text: #f5e6ef;
+    --muted: #9a7e8a;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Subtle radial glow behind everything */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 60% at 50% 60%, rgba(255,58,110,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  #stage {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .center {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    font-weight: 400;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(48px, 10vw, 88px);
+    font-weight: 700;
+    line-height: 1;
+    background: linear-gradient(135deg, #fff 30%, var(--accent2) 60%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+    letter-spacing: -0.02em;
+  }
+
+  .tagline {
+    font-size: 15px;
+    color: var(--muted);
+    font-weight: 300;
+    margin-bottom: 52px;
+    letter-spacing: 0.01em;
+  }
+
+  #gen-btn {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    background: var(--accent);
+    box-shadow: 0 0 0 0 rgba(255,58,110,0.5);
+    animation: pulse 2.4s ease-in-out infinite;
+    transition: transform 0.12s, background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  #gen-btn:hover {
+    transform: scale(1.07);
+    background: #ff1a5a;
+    animation-play-state: paused;
+  }
+
+  #gen-btn:active {
+    transform: scale(0.94);
+  }
+
+  #gen-btn svg {
+    width: 52px;
+    height: 52px;
+    display: block;
+  }
+
+  #gen-btn span {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #fff;
+    opacity: 0.85;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,58,110,0.5); }
+    50%       { box-shadow: 0 0 0 22px rgba(255,58,110,0); }
+  }
+
+  .counter {
+    margin-top: 40px;
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    min-height: 20px;
+    transition: color 0.3s;
+  }
+
+  .counter span {
+    color: var(--accent2);
+    font-weight: 500;
+  }
+
+  /* Floating hearts */
+  .heart-wrap {
+    position: absolute;
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+
+  @keyframes floatUp {
+    0%   { opacity: 0;   transform: translateY(0) scale(0.2) rotate(var(--r0)); }
+    10%  { opacity: 1;   transform: translateY(-40px) scale(1.1) rotate(var(--r1)); }
+    85%  { opacity: 0.8; }
+    100% { opacity: 0;   transform: translateY(var(--dist)) scale(0.5) rotate(var(--r2)); }
+  }
+
+  @keyframes sway {
+    0%   { margin-left: 0; }
+    25%  { margin-left: var(--sw1); }
+    75%  { margin-left: var(--sw2); }
+    100% { margin-left: 0; }
+  }
+
+  /* Particle sparkle */
+  .sparkle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: sparkOut 0.7s ease-out forwards;
+  }
+
+  @keyframes sparkOut {
+    0%   { opacity: 1; transform: scale(1) translate(0,0); }
+    100% { opacity: 0; transform: scale(0) translate(var(--dx), var(--dy)); }
+  }
+</style>
+</head>
+<body>
+
+<div id="stage"></div>
+
+<div class="center">
+  <p class="eyebrow">Made with love</p>
+  <h1>Heart<br><em style="font-style:italic; font-weight:400;">Generator</em></h1>
+  <p class="tagline">Press the button. Feel something.</p>
+
+  <button id="gen-btn" aria-label="Generate hearts">
+    <svg viewBox="0 0 100 90" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M50 85C50 85 5 55 5 28C5 10 20 3 35 3C42 3 48 7 50 11C52 7 58 3 65 3C80 3 95 10 95 28C95 55 50 85 50 85Z" fill="white"/>
+    </svg>
+    <span>Click me</span>
+  </button>
+
+  <p class="counter" id="counter">— tap to begin —</p>
+</div>
+
+<script>
+  const COLORS = [
+    '#ff3a6e','#ff6b9d','#ff8fa3','#ffb3c1',
+    '#ff4fa3','#e91e8c','#ff1a6c','#ff6e40',
+    '#ff80ab','#ea80fc','#ff6ec7','#ffab40'
+  ];
+
+  const stage = document.getElementById('stage');
+  const btn   = document.getElementById('gen-btn');
+  const ctr   = document.getElementById('counter');
+  let total   = 0;
+
+  function rand(min, max) { return Math.random() * (max - min) + min; }
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function spawnSparkles(x, y) {
+    for (let i = 0; i < 8; i++) {
+      const sp = document.createElement('div');
+      sp.className = 'sparkle';
+      const size = rand(4, 9);
+      const angle = (i / 8) * Math.PI * 2;
+      const dist = rand(30, 70);
+      sp.style.cssText = `
+        width:${size}px; height:${size}px;
+        left:${x - size/2}px; top:${y - size/2}px;
+        background:${pick(COLORS)};
+        --dx:${Math.cos(angle)*dist}px;
+        --dy:${Math.sin(angle)*dist}px;
+      `;
+      stage.appendChild(sp);
+      sp.addEventListener('animationend', () => sp.remove());
+    }
+  }
+
+  function spawnHeart() {
+    const color  = pick(COLORS);
+    const size   = rand(28, 72);
+    const W      = window.innerWidth;
+    const H      = window.innerHeight;
+    const x      = rand(size, W - size);
+    const startY = H - rand(0, H * 0.3);
+    const dist   = -(rand(H * 0.7, H * 1.1)) + 'px';
+    const dur    = rand(2.8, 4.8);
+    const delay  = rand(0, 0.25);
+    const r0     = rand(-20, 20) + 'deg';
+    const r1     = rand(-15, 15) + 'deg';
+    const r2     = rand(-40, 40) + 'deg';
+    const sw1    = rand(-30, 30) + 'px';
+    const sw2    = rand(-30, 30) + 'px';
+
+    const wrap = document.createElement('div');
+    wrap.className = 'heart-wrap';
+    wrap.style.cssText = `
+      left:${x}px; top:${startY}px;
+      --dist:${dist}; --r0:${r0}; --r1:${r1}; --r2:${r2};
+      --sw1:${sw1}; --sw2:${sw2};
+      animation: floatUp ${dur}s ease-in ${delay}s forwards,
+                 sway    ${dur * 0.5}s ease-in-out ${delay}s alternate infinite;
+    `;
+    wrap.innerHTML = `
+      <svg width="${size}" height="${size * 0.9}" viewBox="0 0 100 90" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 85C50 85 5 55 5 28C5 10 20 3 35 3C42 3 48 7 50 11C52 7 58 3 65 3C80 3 95 10 95 28C95 55 50 85 50 85Z"
+              fill="${color}" opacity="${rand(0.7,1)}"/>
+      </svg>`;
+    stage.appendChild(wrap);
+    wrap.addEventListener('animationend', () => wrap.remove(), { once: true });
+  }
+
+  btn.addEventListener('click', (e) => {
+    const rect = btn.getBoundingClientRect();
+    const cx   = rect.left + rect.width / 2;
+    const cy   = rect.top  + rect.height / 2;
+    spawnSparkles(cx, cy);
+
+    const count = Math.floor(rand(5, 12));
+    for (let i = 0; i < count; i++) {
+      setTimeout(spawnHeart, i * 60);
+    }
+    total += count;
+    ctr.innerHTML = `<span>${total.toLocaleString()}</span> heart${total === 1 ? '' : 's'} generated`;
+  });
+</script>
+</body>
+</html>
