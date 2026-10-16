@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#160d35" />
+  <meta name="description" content="A tiny magical door, made especially for Abhay." />
+  <title>A Door to My Heart 💖</title>
+  <style>
+    :root {
+      --night: #100a2b;
+      --violet: #34205e;
+      --pink: #ff9ed2;
+      --rose: #ff5cab;
+      --gold: #ffe6a8;
+      --cream: #fff6fb;
+    }
+    * { box-sizing: border-box; }
+    html { min-height: 100%; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--cream);
+      font-family: Georgia, "Times New Roman", serif;
+      background:
+        radial-gradient(ellipse at 50% 42%, rgba(116, 69, 174, .4), transparent 42%),
+        radial-gradient(ellipse at 15% 15%, rgba(255, 112, 190, .13), transparent 32%),
+        linear-gradient(160deg, #09071d 0%, #1b103b 52%, #301744 100%);
+    }
+    body::before {
+      content: "";
+      position: fixed; inset: 0;
+      pointer-events: none;
+      opacity: .35;
+      background-image: radial-gradient(#fff 0.8px, transparent 1px);
+      background-size: 43px 43px;
+      mask-image: linear-gradient(to bottom, black, transparent 90%);
+    }
+    button { font: inherit; }
+    .scene {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100svh;
+      padding: 46px 20px 32px;
+      text-align: center;
+      isolation: isolate;
+    }
+    .eyebrow {
+      color: #ffd9ef;
+      text-transform: uppercase;
+      letter-spacing: .22em;
+      font: 600 .72rem/1.4 system-ui, sans-serif;
+      margin: 0 0 14px;
+      animation: fadeUp 1s both;
+    }
+    h1 {
+      font-size: clamp(2.4rem, 8vw, 5rem);
+      line-height: 1.02;
+      font-weight: 500;
+      letter-spacing: -.045em;
+      margin: 0;
+      text-shadow: 0 0 30px rgba(255, 137, 207, .25);
+      animation: fadeUp 1s .1s both;
+    }
+    .subtitle {
+      max-width: 490px;
+      color: #e9d8f4;
+      font: 400 clamp(.98rem, 2.8vw, 1.12rem)/1.7 system-ui, sans-serif;
+      margin: 18px auto 25px;
+      animation: fadeUp 1s .2s both;
+    }
+    .door-stage {
+      position: relative;
+      width: min(76vw, 310px);
+      height: min(91vw, 370px);
+      max-height: 390px;
+      display: grid;
+      place-items: center;
+      margin: 2px auto 18px;
+      perspective: 1200px;
+      animation: fadeUp 1s .3s both;
+    }
+    .halo {
+      position: absolute;
+      width: 120%; height: 100%;
+      border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(255, 116, 198, .25), rgba(168, 111, 255, .11) 45%, transparent 70%);
+      filter: blur(12px);
+      animation: breathe 3.5s ease-in-out infinite;
+    }
+    .stars {
+      position: absolute; inset: -10% -18%;
+      pointer-events: none;
+    }
+    .star {
+      position: absolute;
+      color: var(--gold);
+      font-size: var(--s, 16px);
+      opacity: .8;
+      animation: twinkle var(--d, 2.5s) ease-in-out infinite alternate;
+      animation-delay: var(--delay, 0s);
+      text-shadow: 0 0 12px #ffd4f0;
+    }
+    .door-frame {
+      position: relative;
+      z-index: 1;
+      width: 76%; height: 89%;
+      padding: 10px;
+      border-radius: 150px 150px 7px 7px;
+      background: linear-gradient(135deg, #ffe3b5, #ff9ed2 28%, #b982ef 55%, #ffe0a5);
+      box-shadow: 0 0 0 2px rgba(255,255,255,.2), 0 0 26px rgba(255,151,221,.65), 0 0 85px rgba(180,120,255,.35);
+    }
+    .door-inner {
+      position: relative;
+      width: 100%; height: 100%;
+      overflow: hidden;
+      border-radius: 140px 140px 3px 3px;
+      background: #1d103e;
+      box-shadow: inset 0 0 25px #08051c;
+    }
+    .portal {
+      position: absolute; inset: 0;
+      opacity: 0;
+      background:
+        radial-gradient(circle at 50% 45%, rgba(255,255,255,.96) 0, rgba(255,195,235,.9) 9%, rgba(255,100,193,.62) 24%, rgba(130,74,219,.5) 47%, transparent 72%),
+        linear-gradient(180deg, #37205d, #170d35);
+      transition: opacity .8s ease;
+    }
+    .door {
+      position: absolute; inset: 0;
+      z-index: 2;
+      transform-style: preserve-3d;
+      transform-origin: left center;
+      transition: transform 1.45s cubic-bezier(.7, 0, .2, 1);
+      border: 1px solid rgba(255, 222, 245, .65);
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.12), transparent 16%, transparent 84%, rgba(0,0,0,.18)),
+        linear-gradient(135deg, #8d55bd 0%, #633c9d 45%, #3d276d 100%);
+      box-shadow: inset 0 0 0 7px rgba(255, 208, 239, .12), inset 0 0 0 10px rgba(255, 215, 244, .17), 8px 0 20px rgba(0,0,0,.22);
+    }
+    .door::before, .door::after {
+      content: "";
+      position: absolute;
+      left: 15%; right: 15%;
+      border: 1px solid rgba(255, 220, 245, .48);
+      border-radius: 100px 100px 5px 5px;
+      box-shadow: inset 0 0 18px rgba(255, 179, 228, .1);
+    }
+    .door::before { top: 11%; height: 38%; }
+    .door::after { top: 55%; bottom: 8%; border-radius: 5px; }
+    .door-heart {
+      position: absolute; z-index: 1;
+      left: 50%; top: 41%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(2.2rem, 9vw, 3.4rem);
+      filter: drop-shadow(0 0 12px rgba(255, 166, 218, .9));
+      animation: heartbeat 1.6s ease-in-out infinite;
+    }
+    .knob {
+      position: absolute; z-index: 3;
+      right: 13%; top: 51%;
+      width: 13px; height: 13px; border-radius: 50%;
+      background: radial-gradient(circle at 30% 25%, #fff6cf, #ffcb72 65%, #b66a48);
+      box-shadow: 0 0 12px #ffd68b;
+    }
+    .open .door { transform: rotateY(-112deg); }
+    .open .portal { opacity: 1; }
+    .open .door-heart { opacity: 0; transition: opacity .3s; }
+    .prompt {
+      min-height: 28px;
+      color: #f3d9ef;
+      font: .92rem/1.5 system-ui, sans-serif;
+      margin: 0 0 19px;
+    }
+    .action {
+      border: 1px solid rgba(255, 225, 246, .75);
+      border-radius: 999px;
+      padding: 14px 25px;
+      color: #381544;
+      background: linear-gradient(135deg, #fff0bf, #ffb9df 58%, #e7c3ff);
+      box-shadow: 0 8px 30px rgba(255, 117, 195, .25), inset 0 1px 0 rgba(255,255,255,.8);
+      font: 700 .95rem/1.2 system-ui, sans-serif;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .action:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(255,117,195,.4); }
+    .action:active { transform: translateY(0) scale(.98); }
+    .action:focus-visible { outline: 3px solid white; outline-offset: 4px; }
+    .reveal {
+      width: min(100%, 590px);
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transform: translateY(15px);
+      transition: max-height 1s ease, opacity .8s ease, transform .8s ease, margin .8s ease;
+      margin: 0;
+    }
+    .reveal.visible {
+      max-height: 420px;
+      opacity: 1;
+      transform: translateY(0);
+      margin: 20px 0 4px;
+    }
+    .message-card {
+      padding: clamp(22px, 5vw, 34px);
+      border: 1px solid rgba(255, 218, 245, .35);
+      border-radius: 24px;
+      background: linear-gradient(145deg, rgba(255,255,255,.12), rgba(255,255,255,.045));
+      box-shadow: 0 12px 55px rgba(5, 2, 18, .22), inset 0 1px 0 rgba(255,255,255,.12);
+      backdrop-filter: blur(12px);
+    }
+    .message-card .tiny-heart { font-size: 1.8rem; }
+    .message-card h2 {
+      font-size: clamp(1.8rem, 6vw, 2.6rem);
+      font-weight: 500;
+      margin: 9px 0 12px;
+    }
+    .message-card p {
+      color: #fff0fa;
+      font: 400 clamp(1rem, 3vw, 1.18rem)/1.8 system-ui, sans-serif;
+      margin: 0;
+    }
+    .signature {
+      color: #ffd5ed;
+      margin-top: 17px;
+      font-style: italic;
+      font-size: 1rem;
+    }
+    .hint {
+      color: rgba(241, 221, 248, .68);
+      font: .75rem/1.5 system-ui, sans-serif;
+      margin-top: 24px;
+    }
+    .floating-heart {
+      position: fixed;
+      z-index: -1;
+      bottom: -40px;
+      pointer-events: none;
+      animation: floatUp var(--duration, 8s) linear forwards;
+      opacity: 0;
+      filter: drop-shadow(0 0 8px rgba(255, 133, 205, .45));
+    }
+    .burst-heart {
+      position: absolute;
+      z-index: 5;
+      pointer-events: none;
+      animation: burst 1.5s ease-out forwards;
+    }
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes breathe { 0%,100% { transform: scale(.92); opacity: .7; } 50% { transform: scale(1.08); opacity: 1; } }
+    @keyframes twinkle { from { opacity: .25; transform: scale(.75) rotate(0); } to { opacity: 1; transform: scale(1.2) rotate(20deg); } }
+    @keyframes heartbeat { 0%,100% { transform: translate(-50%,-50%) scale(1); } 15% { transform: translate(-50%,-50%) scale(1.12); } 30% { transform: translate(-50%,-50%) scale(1); } 45% { transform: translate(-50%,-50%) scale(1.08); } }
+    @keyframes floatUp { 0% { opacity: 0; transform: translateY(0) rotate(0deg); } 12% { opacity: .7; } 85% { opacity: .5; } 100% { opacity: 0; transform: translateY(-115vh) rotate(35deg); } }
+    @keyframes burst { 0% { opacity: 1; transform: translate(0,0) scale(.5); } 100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(1.5) rotate(var(--r)); } }
+    @media (max-width: 420px) {
+      .scene { padding-inline: 15px; padding-top: 34px; }
+      .door-stage { width: min(75vw, 275px); height: min(89vw, 330px); }
+      .action { padding: 13px 20px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="scene">
+    <p class="eyebrow">A little bit of magic, just for you</p>
+    <h1>A Door to<br />My Heart</h1>
+    <p class="subtitle">Hey Abhay… 💗<br />I've been hiding a little place just for you.<br />Ready to find your way in?</p>
+
+    <div class="door-stage" id="doorStage">
+      <div class="halo" aria-hidden="true"></div>
+      <div class="stars" aria-hidden="true" id="stars"></div>
+      <div class="door-frame" id="doorFrame" aria-label="A magical purple door">
+        <div class="door-inner">
+          <div class="portal" aria-hidden="true"></div>
+          <div class="door" id="door" aria-hidden="true">
+            <span class="door-heart">♡</span>
+            <span class="knob"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="prompt" id="prompt" aria-live="polite">Some doors are opened with a key… this one with a little courage.</p>
+    <button class="action" id="openButton" type="button">Open your Any Way Door ✨</button>
+
+    <section class="reveal" id="reveal" aria-live="polite" aria-hidden="true">
+      <div class="message-card">
+        <div class="tiny-heart" aria-hidden="true">💖</div>
+        <h2>You found your way in, Abhay.</h2>
+        <p>And just like that, you irritating person, you're entering into my veins. ❤️</p>
+        <div class="signature">— A little message, just for you ✨</div>
+      </div>
+    </section>
+    <p class="hint" id="hint">Made with a little magic and a whole lot of heart.</p>
+  </main>
+
+  <script>
+    (() => {
+      const stage = document.getElementById('doorStage');
+      const frame = document.getElementById('doorFrame');
+      const button = document.getElementById('openButton');
+      const prompt = document.getElementById('prompt');
+      const reveal = document.getElementById('reveal');
+      const hint = document.getElementById('hint');
+      const stars = document.getElementById('stars');
+      let isOpen = false;
+
+      // Decorative twinkling stars around the door.
+      for (let i = 0; i < 17; i++) {
+        const star = document.createElement('span');
+        star.className = 'star';
+        star.textContent = i % 3 === 0 ? '✦' : '✧';
+        star.style.left = `${Math.random() * 100}%`;
+        star.style.top = `${Math.random() * 100}%`;
+        star.style.setProperty('--s', `${10 + Math.random() * 15}px`);
+        star.style.setProperty('--d', `${1.4 + Math.random() * 2.5}s`);
+        star.style.setProperty('--delay', `${Math.random() * -3}s`);
+        stars.appendChild(star);
+      }
+
+      function floatHeart() {
+        const heart = document.createElement('span');
+        heart.className = 'floating-heart';
+        heart.textContent = ['♡', '♥', '💕', '✧'][Math.floor(Math.random() * 4)];
+        heart.style.left = `${Math.random() * 100}vw`;
+        heart.style.fontSize = `${13 + Math.random() * 22}px`;
+        heart.style.setProperty('--duration', `${6 + Math.random() * 6}s`);
+        document.body.appendChild(heart);
+        heart.addEventListener('animationend', () => heart.remove(), { once: true });
+      }
+      const heartTimer = window.setInterval(floatHeart, 700);
+      for (let i = 0; i < 8; i++) window.setTimeout(floatHeart, i * 180);
+
+      function heartBurst() {
+        const bounds = stage.getBoundingClientRect();
+        const centerX = bounds.left + bounds.width / 2;
+        const centerY = bounds.top + bounds.height / 2;
+        for (let i = 0; i < 24; i++) {
+          const heart = document.createElement('span');
+          heart.className = 'burst-heart';
+          heart.textContent = ['💖', '💕', '✨', '♥'][i % 4];
+          heart.style.left = `${centerX}px`;
+          heart.style.top = `${centerY}px`;
+          heart.style.setProperty('--x', `${(Math.random() - .5) * 340}px`);
+          heart.style.setProperty('--y', `${(Math.random() - .6) * 300}px`);
+          heart.style.setProperty('--r', `${(Math.random() - .5) * 90}deg`);
+          heart.style.fontSize = `${14 + Math.random() * 15}px`;
+          document.body.appendChild(heart);
+          heart.addEventListener('animationend', () => heart.remove(), { once: true });
+        }
+      }
+
+      function openDoor() {
+        if (isOpen) {
+          // The second click lets Abhay experience the reveal again.
+          reveal.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+        isOpen = true;
+        frame.classList.add('open');
+        stage.classList.add('open');
+        button.textContent = 'Your little message is waiting 💌';
+        button.setAttribute('aria-label', 'Scroll to your message');
+        prompt.textContent = 'A little magic is making room for you…';
+        window.setTimeout(() => {
+          reveal.classList.add('visible');
+          reveal.setAttribute('aria-hidden', 'false');
+          prompt.textContent = 'And just like that… you found your way to my heart. 💗';
+          hint.textContent = 'Somewhere in this big world, a little place is always yours.';
+          button.textContent = 'Read your message again 💖';
+          heartBurst();
+          reveal.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 850);
+      }
+
+      button.addEventListener('click', openDoor);
+      frame.addEventListener('click', openDoor);
+      frame.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          openDoor();
+        }
+      });
+      frame.tabIndex = 0;
+      frame.setAttribute('role', 'button');
+      frame.setAttribute('aria-label', 'Open the magical door');
+      window.addEventListener('pagehide', () => window.clearInterval(heartTimer));
+    })();
+  </script>
+</body>
+</html>
